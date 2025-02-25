@@ -4,88 +4,807 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nursing Quiz</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --gray-light: #f3f4f6;
+            --gray: #9ca3af;
+            --gray-dark: #4b5563;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --white: #ffffff;
+            --red: #ef4444;
+            --green: #10b981;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--gray-light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+        
+        .topic-selector {
+            margin-bottom: 2rem;
+        }
+        
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--gray);
+            border-radius: 6px;
+            background-color: var(--white);
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+        }
+        
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-dark);
+            pointer-events: none;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        button:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .pro-badge {
+            background-color: var(--red);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .quiz-container {
+            display: none;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .quiz-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .quiz-progress {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+        
+        .question-container {
+            margin-bottom: 2rem;
+        }
+        
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--gray);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: var(--gray-light);
+        }
+        
+        .option.selected {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        
+        .option-prefix {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--gray-light);
+            border-radius: 50%;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+        
+        .selected .option-prefix {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        
+        .option-text {
+            flex: 1;
+        }
+        
+        .quiz-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        
+        .back-btn {
+            background-color: var(--gray-light);
+            color: var(--text);
+        }
+        
+        .back-btn:hover {
+            background-color: var(--gray);
+        }
+        
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+        
+        .results-header {
+            margin-bottom: 2rem;
+        }
+        
+        .results-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .results-subtitle {
+            color: var(--text-light);
+        }
+        
+        .score {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 1.5rem 0;
+        }
+        
+        .score-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .restart-btn {
+            background-color: var(--gray-light);
+            color: var(--text);
+        }
+        
+        .pro-tooltip {
+            position: fixed;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Blurred pro options */
+        .pro-option {
+            filter: blur(1px);
+            opacity: 0.7;
+            position: relative;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <a href="https://nursingquiz.github.io/homepage/" class="return-home-btn">Return to Homepage</a>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="container">
-        <h1>Nursing Quiz</h1>
+    <div class="container">
+        <header>
+            <h1>Nursing Quiz Challenge</h1>
+            <p class="description">Test your nursing knowledge with our practice questions</p>
+        </header>
         
-        <!-- Quiz Controls -->
-        <section class="quiz-controls">
-            <select class="topic-select" id="topicSelect">
-                <option value="">Select a Topic</option>
-                <option value="Anatomy and Physiology">Anatomy and Physiology</option>
-                <option value="Pharmacology">Pharmacology</option>
-                <option value="Nursing Ethics">Nursing Ethics</option>
-            </select>
-
-            <div class="progress-container" id="progressContainer" style="display: none;">
-                <div class="progress-text" id="progressText">Questions Answered: 0/5</div>
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-        </section>
-
-        <!-- Quiz Content -->
-        <section id="quizContainer" class="quiz-container" style="display: none;"></section>
-
-        <!-- Donation Section -->
-        <section id="donate" class="donate-section">
-            <h2 class="donation-title">Support nursing education for aspiring professionals worldwide!</h2>
+        <div id="topic-selector" class="topic-selector">
+            <h2>Select a Nursing Topic</h2>
+            <p class="description">Choose a topic to start your 10-question quiz session</p>
             
-            <div class="donation-image-container">
-                <img src="https://example.com/nursing-image.jpg"
-                     alt="Nursing education"
-                     class="donation-image"
-                     loading="lazy">
+            <div class="select-wrapper">
+                <select id="topic-dropdown">
+                    <option value="" disabled selected>Select a topic...</option>
+                    <option value="anatomy">Anatomy and Physiology</option>
+                    <option value="pharmacology">Pharmacology</option>
+                    <option value="ethics">Nursing Ethics</option>
+                    <option value="pediatric" class="pro-option">Pediatric Nursing</option>
+                    <option value="mental" class="pro-option">Mental Health Nursing</option>
+                    <option value="critical" class="pro-option">Critical Care</option>
+                    <option value="maternal" class="pro-option">Maternal Health Nursing</option>
+                    <option value="community" class="pro-option">Community Health Nursing</option>
+                </select>
             </div>
             
-            <p class="donation-description">
-                Help future nurses access quality resources. Your donations can provide free tools and education for the next generation of healthcare professionals.
-            </p>
-        </section>
-    </main>
-
-    <!-- Fixed Elements -->
-    <div class="donate-banner">
-        <a href="https://nursingdonations.github.io/donate/" target="_blank" rel="noopener noreferrer">
-            PLEASE CLICK HERE TO DONATE
-        </a>
-    </div>
-
-    <!-- Telegram Popup -->
-    <div class="telegram-popup" id="telegramPopup" style="display: none;">
-        <div class="popup-content">
-            <span class="close-btn" onclick="closePopup()">&times;</span>
-            
-            <div class="popup-header">
-                <img src="https://logos-world.net/wp-content/uploads/2021/03/Telegram-Symbol.png" 
-                     alt="Telegram Logo" 
-                     class="telegram-logo">
-                <h2>🚨 Limited Time Access! 🚨</h2>
+            <button id="start-quiz" disabled>Start Quiz</button>
+        </div>
+        
+        <div id="quiz-container" class="quiz-container">
+            <div class="quiz-header">
+                <div class="quiz-title" id="quiz-title">Anatomy and Physiology Quiz</div>
+                <div class="quiz-progress">Question <span id="current-question">1</span> of <span id="total-questions">10</span></div>
             </div>
-
-            <div class="popup-body">
-                <p class="urgent-msg">⚠️ Our Telegram group is closing in less than 24 hours!</p>
-                <p>Join our exclusive Telegram channel to access:</p>
-                <ul>
-                    <li>📚 Free Video Lectures</li>
-                    <li>📝 Study Materials</li>
-                    <li>👥 Community Support</li>
-                    <li>🎯 Practice Problems</li>
-                </ul>
-                <a href="https://t.me/nursing101" class="join-btn" target="_blank">
-                    Join Now Before It's Too Late!
-                </a>
+            
+            <div class="question-container">
+                <div id="question" class="question">Loading question...</div>
+                <div id="options" class="options">
+                    <!-- Options will be inserted here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="quiz-navigation">
+                <button id="back-btn" class="back-btn">Back to Topics</button>
+                <button id="next-btn">Next Question</button>
+            </div>
+        </div>
+        
+        <div id="results-container" class="results-container">
+            <div class="results-header">
+                <div class="results-title">Quiz Complete!</div>
+                <div class="results-subtitle" id="results-topic">Anatomy and Physiology Quiz</div>
+            </div>
+            
+            <div class="score" id="score">7/10</div>
+            <div class="score-text" id="score-text">Great job! You scored 70%</div>
+            
+            <div class="actions">
+                <button id="restart-btn" class="restart-btn">Try Another Topic</button>
+                <button id="retry-btn">Retry This Topic</button>
             </div>
         </div>
     </div>
-
-    <script src="script.js"></script>
+    
+    <div id="pro-tooltip" class="pro-tooltip">UPGRADE TO PRO</div>
+    
+    <script>
+        // DOM Elements
+        const topicSelector = document.getElementById('topic-selector');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const topicDropdown = document.getElementById('topic-dropdown');
+        const startQuizBtn = document.getElementById('start-quiz');
+        const backBtn = document.getElementById('back-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const quizTitle = document.getElementById('quiz-title');
+        const currentQuestionSpan = document.getElementById('current-question');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const resultsTopic = document.getElementById('results-topic');
+        const scoreElement = document.getElementById('score');
+        const scoreTextElement = document.getElementById('score-text');
+        const proTooltip = document.getElementById('pro-tooltip');
+        
+        // Quiz state
+        let currentTopic = '';
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswers = [];
+        
+        // Question banks for each topic
+        const questionBanks = {
+            anatomy: [
+                {
+                    question: "Which of the following is NOT a function of the liver?",
+                    options: ["Detoxification", "Production of bile", "Storage of glycogen", "Production of insulin"],
+                    answer: 3
+                },
+                {
+                    question: "The pacemaker of the heart is the:",
+                    options: ["AV node", "SA node", "Bundle of His", "Purkinje fibers"],
+                    answer: 1
+                },
+                {
+                    question: "Which hormone regulates blood calcium levels?",
+                    options: ["Insulin", "Parathyroid hormone", "Calcitonin", "Both B and C"],
+                    answer: 3
+                },
+                {
+                    question: "The exchange of oxygen and carbon dioxide occurs in the:",
+                    options: ["Bronchi", "Trachea", "Alveoli", "Bronchioles"],
+                    answer: 2
+                },
+                {
+                    question: "Which part of the brain is responsible for balance and coordination?",
+                    options: ["Cerebrum", "Cerebellum", "Medulla oblongata", "Hypothalamus"],
+                    answer: 1
+                },
+                {
+                    question: "What is the normal pH range of blood?",
+                    options: ["6.8 - 7.0", "7.0 - 7.2", "7.35 - 7.45", "7.5 - 7.65"],
+                    answer: 2
+                },
+                {
+                    question: "The functional unit of the kidney is the:",
+                    options: ["Glomerulus", "Nephron", "Renal tubule", "Bowman's capsule"],
+                    answer: 1
+                },
+                {
+                    question: "Which of the following is NOT a function of the spleen?",
+                    options: ["Filters blood", "Stores platelets", "Produces digestive enzymes", "Removes old red blood cells"],
+                    answer: 2
+                },
+                {
+                    question: "Which cranial nerve is responsible for taste sensation?",
+                    options: ["Vagus nerve", "Facial nerve", "Trigeminal nerve", "Glossopharyngeal nerve"],
+                    answer: 1
+                },
+                {
+                    question: "What is the primary function of T lymphocytes?",
+                    options: ["Produce antibodies", "Cell-mediated immunity", "Blood clotting", "Phagocytosis"],
+                    answer: 1
+                },
+                {
+                    question: "The main function of the large intestine is:",
+                    options: ["Nutrient absorption", "Water absorption", "Food digestion", "Vitamin synthesis"],
+                    answer: 1
+                },
+                {
+                    question: "Which gland produces thyroid hormone?",
+                    options: ["Adrenal gland", "Thyroid gland", "Pituitary gland", "Pancreas"],
+                    answer: 1
+                },
+                {
+                    question: "Pulmonary circulation refers to blood flow between:",
+                    options: ["The heart and the body", "The heart and the lungs", "The liver and the heart", "The kidneys and the heart"],
+                    answer: 1
+                },
+                {
+                    question: "Which blood cells are primarily responsible for immune defense?",
+                    options: ["Red blood cells", "Platelets", "White blood cells", "Plasma cells"],
+                    answer: 2
+                },
+                {
+                    question: "The female hormone estrogen is primarily produced in the:",
+                    options: ["Pituitary gland", "Adrenal gland", "Ovaries", "Thyroid gland"],
+                    answer: 2
+                }
+            ],
+            pharmacology: [
+                {
+                    question: "Which of the following is an example of an opioid analgesic?",
+                    options: ["Acetaminophen", "Ibuprofen", "Morphine", "Aspirin"],
+                    answer: 2
+                },
+                {
+                    question: "Beta-blockers primarily affect which body system?",
+                    options: ["Respiratory system", "Cardiovascular system", "Digestive system", "Nervous system"],
+                    answer: 1
+                },
+                {
+                    question: "Which medication class is commonly used to treat hypertension?",
+                    options: ["Bronchodilators", "Anticoagulants", "ACE inhibitors", "Corticosteroids"],
+                    answer: 2
+                },
+                {
+                    question: "Warfarin is classified as:",
+                    options: ["Anticoagulant", "Antibiotic", "Antihypertensive", "Anti-inflammatory"],
+                    answer: 0
+                },
+                {
+                    question: "What is the primary action of furosemide (Lasix)?",
+                    options: ["Lowers blood pressure", "Diuresis", "Reduces inflammation", "Controls heart rate"],
+                    answer: 1
+                },
+                {
+                    question: "The abbreviation 'NPO' in medication administration means:",
+                    options: ["No Physician Order", "New Prescription Only", "Next Possible Opportunity", "Nothing by Mouth"],
+                    answer: 3
+                },
+                {
+                    question: "Which route of administration provides the fastest systemic effect?",
+                    options: ["Oral", "Intramuscular", "Intravenous", "Subcutaneous"],
+                    answer: 2
+                },
+                {
+                    question: "What is the antidote for opioid overdose?",
+                    options: ["Flumazenil", "Naloxone", "Activated charcoal", "Atropine"],
+                    answer: 1
+                },
+                {
+                    question: "Which medication requires a patient to avoid grapefruit juice?",
+                    options: ["Amoxicillin", "Insulin", "Atorvastatin", "Acetaminophen"],
+                    answer: 2
+                },
+                {
+                    question: "Insulin is primarily used to treat:",
+                    options: ["Hyperthyroidism", "Diabetes mellitus", "Hypertension", "Depression"],
+                    answer: 1
+                },
+                {
+                    question: "Which medication requires regular blood tests to monitor therapeutic levels?",
+                    options: ["Acetaminophen", "Aspirin", "Digoxin", "Diphenhydramine"],
+                    answer: 2
+                },
+                {
+                    question: "Metformin belongs to which class of medications?",
+                    options: ["Sulfonylureas", "Biguanides", "Thiazolidinediones", "DPP-4 inhibitors"],
+                    answer: 1
+                },
+                {
+                    question: "Which antibiotic is associated with tendon rupture as a side effect?",
+                    options: ["Amoxicillin", "Ciprofloxacin", "Erythromycin", "Clindamycin"],
+                    answer: 1
+                },
+                {
+                    question: "The 'five rights' of medication administration include all EXCEPT:",
+                    options: ["Right patient", "Right cost", "Right dose", "Right route"],
+                    answer: 1
+                },
+                {
+                    question: "Which medication is a calcium channel blocker?",
+                    options: ["Lisinopril", "Metoprolol", "Amlodipine", "Furosemide"],
+                    answer: 2
+                }
+            ],
+            ethics: [
+                {
+                    question: "Which of the following is NOT one of the four main principles of healthcare ethics?",
+                    options: ["Autonomy", "Beneficence", "Confidentiality", "Justice"],
+                    answer: 2
+                },
+                {
+                    question: "The principle of 'autonomy' in nursing ethics refers to:",
+                    options: ["The nurse's independence", "The patient's right to make their own decisions", "The hospital's policies", "The doctor's orders"],
+                    answer: 1
+                },
+                {
+                    question: "What does 'informed consent' require?",
+                    options: ["The patient must be told about all procedures", "The patient must understand the information provided", "The consent must be voluntary", "All of the above"],
+                    answer: 3
+                },
+                {
+                    question: "Which situation represents a breach of confidentiality?",
+                    options: ["Discussing a patient's case with the healthcare team", "Reporting suspected abuse to authorities", "Sharing patient information with family without permission", "Documenting care in the medical record"],
+                    answer: 2
+                },
+                {
+                    question: "The principle of 'nonmaleficence' means:",
+                    options: ["Do good", "Do no harm", "Be fair", "Respect autonomy"],
+                    answer: 1
+                },
+                {
+                    question: "In a situation where a patient refuses life-saving treatment, the nurse should:",
+                    options: ["Ignore the patient's wishes and provide treatment", "Respect the patient's decision if they are competent", "Always follow family members' wishes", "Always follow the physician's orders"],
+                    answer: 1
+                },
+                {
+                    question: "Which of the following is an example of 'beneficence'?",
+                    options: ["Maintaining patient confidentiality", "Distributing resources fairly", "Acting in the best interest of the patient", "Respecting patient autonomy"],
+                    answer: 2
+                },
+                {
+                    question: "Which organization publishes the Code of Ethics for Nurses in the United States?",
+                    options: ["American Medical Association", "American Nurses Association", "Centers for Disease Control", "Joint Commission"],
+                    answer: 1
+                },
+                {
+                    question: "What is the purpose of an advance directive?",
+                    options: ["To specify treatment preferences if unable to make decisions", "To designate inheritance of property", "To choose a primary care provider", "To select insurance coverage"],
+                    answer: 0
+                },
+                {
+                    question: "When is it ethically permissible to break confidentiality?",
+                    options: ["When a patient is suicidal", "When a family member asks for information", "When it would be convenient for care", "When the patient is difficult to work with"],
+                    answer: 0
+                },
+                {
+                    question: "What does 'distributive justice' in healthcare refer to?",
+                    options: ["Legal punishment for healthcare errors", "Fair allocation of resources and treatments", "Equal pay for healthcare workers", "Following the same procedures for all patients"],
+                    answer: 1
+                },
+                {
+                    question: "What is the nurse's ethical responsibility when observing a colleague making an error?",
+                    options: ["Ignore it to maintain collegial relationships", "Report it anonymously", "Address it directly to protect patient safety", "Discuss it with other colleagues first"],
+                    answer: 2
+                },
+                {
+                    question: "The concept of 'moral distress' in nursing refers to:",
+                    options: ["Being uncertain about which action is right", "Knowing the right action but being constrained from taking it", "Feeling guilty after making a mistake", "Disagreeing with a patient's choices"],
+                    answer: 1
+                },
+                {
+                    question: "Which statement best describes the relationship between law and ethics in nursing?",
+                    options: ["They are the same thing", "Ethics is broader than law", "Law is always more important than ethics", "Ethics only applies when laws are unclear"],
+                    answer: 1
+                },
+                {
+                    question: "What is meant by 'cultural competence' in nursing ethics?",
+                    options: ["Speaking multiple languages", "Understanding and respecting diverse cultural beliefs", "Converting patients to the nurse's beliefs", "Treating all patients exactly the same way"],
+                    answer: 1
+                }
+            ]
+        };
+        
+        // Initialize the quiz
+        function init() {
+            // Enable/disable start button based on topic selection
+            topicDropdown.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                currentTopic = this.value;
+                
+                if (currentTopic && !selectedOption.classList.contains('pro-option')) {
+                    startQuizBtn.disabled = false;
+                } else {
+                    startQuizBtn.disabled = true;
+                }
+            });
+            
+            // Handle PRO option selection
+            topicDropdown.addEventListener('mousedown', function(event) {
+                const select = this;
+                setTimeout(function() {
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (selectedOption && selectedOption.classList.contains('pro-option')) {
+                        showProTooltip(event);
+                        // Reset selection to previous or empty
+                        select.value = currentTopic || "";
+                    }
+                }, 100);
+            });
+            
+            // Start quiz button click handler
+            startQuizBtn.addEventListener('click', startQuiz);
+            
+            // Back button click handler
+            backBtn.addEventListener('click', function() {
+                showTopicSelector();
+            });
+            
+            // Next button click handler
+            nextBtn.addEventListener('click', goToNextQuestion);
+            
+            // Restart button click handler
+            restartBtn.addEventListener('click', function() {
+                showTopicSelector();
+            });
+            
+            // Retry button click handler
+            retryBtn.addEventListener('click', function() {
+                startQuiz();
+            });
+        }
+        
+        // Start the quiz with the selected topic
+        function startQuiz() {
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswers = Array(10).fill(null);
+            
+            // Get 10 random questions for the selected topic
+            questions = getRandomQuestions(questionBanks[currentTopic], 10);
+            
+            // Update UI
+            quizTitle.textContent = getTopicName(currentTopic) + " Quiz";
+            totalQuestionsSpan.textContent = questions.length;
+            
+            // Show the quiz container
+            topicSelector.style.display = 'none';
+            quizContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Load the first question
+            loadQuestion();
+        }
+        
+        // Load the current question
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            currentQuestionSpan.textContent = currentQuestionIndex + 1;
+            
+            // Update question text
+            questionElement.textContent = question.question;
+            
+            // Clear previous options
+            optionsElement.innerHTML = '';
+            
+            // Add new options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (selectedAnswers[currentQuestionIndex] === index) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.innerHTML = `
+                    <div class="option-prefix">${String.fromCharCode(65 + index)}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(optionElement);
+            });
+            
+            // Update button text based on question
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish Quiz';
+            } else {
+                nextBtn.textContent = 'Next Question';
+            }
+        }
+        
+        // Select an option
+        function selectOption(optionIndex) {
+            selectedAnswers[currentQuestionIndex] = optionIndex;
+            
+            // Update UI to show selected option
+            const options = optionsElement.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+        
+        // Go to next question or finish quiz
+        function goToNextQuestion() {
+            // Check if an option is selected
+            if (selectedAnswers[currentQuestionIndex] === null) {
+                alert('Please select an answer before proceeding.');
+                return;
+            }
+            
+            // Check if current answer is correct
+            if (selectedAnswers[currentQuestionIndex] === questions[currentQuestionIndex].answer) {
+                score++;
+            }
+            
+            // Go to next question or finish
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+        
+        // Finish quiz and show results
+        function finishQuiz() {
+            // Calculate score
+            const percentage = (score / questions.length) * 100;
+            
+            // Update results UI
+            resultsTopic.textContent = getTopicName(currentTopic) + " Quiz";
+            scoreElement.textContent = `${score}/${questions.length}`;
+            scoreTextElement.textContent = `You scored ${percentage}%`;
+            
+            // Show results
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+        
+        // Show topic selector
+        function showTopicSelector() {
+            topicSelector.style.display = 'block';
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'none';
+        }
+        
+        // Get random questions from a question bank
+        function getRandomQuestions(bank, count) {
+            const shuffled = [...bank].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+        
+        // Get topic name from topic code
+        function getTopicName(topic) {
+            switch(topic) {
+                case 'anatomy': return 'Anatomy and Physiology';
+                case 'pharmacology': return 'Pharmacology';
+                case 'ethics': return 'Nursing Ethics';
+                default: return '';
+            }
+        }
+        
+        // Show PRO tooltip
+        function showProTooltip(event) {
+            proTooltip.style.left = `${event.pageX}px`;
+            proTooltip.style.top = `${event.pageY - 40}px`;
+            proTooltip.style.opacity = '1';
+            
+            setTimeout(() => {
+                proTooltip.style.opacity = '0';
+            }, 2000);
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
